@@ -91,7 +91,8 @@ def getInput():
         a, b = (int(x) - 1 for x in input().split())
         salons[a].addNeighbor(salons[b])
         salons[b].addNeighbor(salons[a])
-
+    
+    return salons
 
 def main() -> None:
     salons = getInput()
