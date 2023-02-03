@@ -1,6 +1,11 @@
 class Node:
     salons: list['Salon']
-    R: dict[tuple[int, int], list[tuple[int]]]
+
+    def __init__(self, salons: list['Salon'] = []) -> None:
+        self.salons = salons
+
+    def addSalon(self, salon: 'Salon') -> None:
+        self.salons.append(salon)
 
 
 class Salon:
@@ -18,10 +23,6 @@ class Salon:
         self.neighbors.append(salon)
 
 
-def getConstaint(salons: list['Salon']):
-    pass
-
-
 def MRV(node: Node) -> int:
     pass
 
@@ -30,7 +31,7 @@ def LCV(node: Node, salon: int) -> list[int]:
     pass
 
 
-def forward_checking(node: Node, salon: int, value: int) -> None:
+def forward_checking(node: Node, salon: int, group: int) -> None:
     pass
 
 
@@ -38,32 +39,46 @@ def AC3(node: Node) -> None:
     pass
 
 
-def backtracking(root: Node) -> Node:
+def isSatisfy(node: Node, salon: int, group: int) -> bool:
+
+    for neighbor in node.salons[salon].neighbors:
+        if neighbor.domain == [group]:
+            return False
+
+    return True
+
+
+def backtracking(root: Node) -> Node | None:
     pass
 
 
-n: int
-m: int
-e: int
-salons: list['Salon']
-
-
 def getInput():
-    globals()['n'], globals()['m'] = (int(x) for x in input().split())
-    globals()['salons'] = []
+    n, m = (int(x) for x in input().split())
+    salons : list['Salon'] = []
     for i in range(n):
         salons.append(Salon())
 
     for i in range(m):
-        for group in input().split():
-            group = int(group) - 1
-            salons[i].addDomain(group)
+        for salon in input().split():
+            salon = int(salon) - 1
+            salons[salon].addDomain(i)
 
-    globals()['e'] = int(input())
+    e = int(input())
     for i in range(e):
         a, b = (int(x) - 1 for x in input().split())
         salons[a].addNeighbor(salons[b])
+        salons[b].addNeighbor(salons[a])
 
 
-def main():
-    getInput()
+def main() -> None:
+    salons = getInput()
+
+    problem = Node(salons)
+    result = backtracking(problem)
+
+    if result == None:
+        print('No')
+        return None
+
+    for salon in result:
+        print(salon.domain[0], end = ' ')
