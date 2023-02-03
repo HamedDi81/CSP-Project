@@ -6,21 +6,29 @@ class Node:
 
     def addSalon(self, salon: 'Salon') -> None:
         self.salons.append(salon)
-
+    
+    def copy(self) -> 'Node':
+        newNode = Node()
+        for salon in self.salons:
+            newNode.addSalon(salon.copy())
+        return newNode
 
 class Salon:
     neighbors: list['Salon']
     domain: list[int]
 
-    def __init__(self) -> None:
-        self.neighbors = []
-        self.domain = []
+    def __init__(self, neighbors: list['Salon'] = [], domain: list[int] = []) -> None:
+        self.neighbors = neighbors
+        self.domain = domain
 
     def addDomain(self, group: int):
         self.domain.append(group)
 
     def addNeighbor(self, salon: 'Salon'):
         self.neighbors.append(salon)
+
+    def copy(self) -> 'Salon':
+        return Salon(self.neighbors, self.domain.copy())
 
 
 def MRV(node: Node) -> int:
