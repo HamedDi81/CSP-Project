@@ -40,12 +40,27 @@ def AC3(node: Node) -> None:
 
 
 def isSatisfy(node: Node, salon: int, group: int) -> bool:
-
     for neighbor in node.salons[salon].neighbors:
         if neighbor.domain == [group]:
             return False
 
     return True
+
+
+def isComplete(node: Node) -> bool:
+    for salon in node.salons:
+        if len(salon.domain) != 1:
+            return False
+
+    return True
+
+
+def isFailure(node: Node) -> bool:
+    for salon in node.salons:
+        if len(salon.domain) == 0:
+            return True
+
+    return False
 
 
 def backtracking(root: Node) -> Node | None:
