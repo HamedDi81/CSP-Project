@@ -70,8 +70,6 @@ def AC3(node: Node , queue:list=None) -> bool:
 
     while queue:
         (salon_i,salon_j)= queue.pop(0)
-        salon_i : Salon
-        salon_j : Salon
         if remove_inconsistent_values(salon_i, salon_j):
             if len(salon_i.domain) == 0: 
                 return False
