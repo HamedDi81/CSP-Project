@@ -22,10 +22,10 @@ class Salon:
         self.neighbors = neighbors
         self.domain = domain
 
-    def addDomain(self, group: int):
+    def addDomain(self, group: int) -> None:
         self.domain.append(group)
 
-    def addNeighbor(self, salon: 'Salon'):
+    def addNeighbor(self, salon: int) -> None:
         self.neighbors.append(salon)
 
     def copy(self) -> 'Salon':
@@ -57,12 +57,14 @@ def LCV(node: Node, salon: int) -> list[int]:
     score = 0
 
     for d in domain_sort:
-        for n in range(node.salons[salon].neighbors):
+        for n in node.salons[salon].neighbors:
             if d in node.salons[n].domain:
                 if len(node.salons[n].domain) == 1:
                     domain_sort.remove(n.domain[0])
+                    score = -1
                 else : score += 1
-        domain_sort[domain_sort.index(d)] = (score, d)
+        if score != -1:
+            domain_sort[domain_sort.index(d)] = (score, d)
         score = 0
 
     domain_sort.sort(key = lambda x: x[0], reverse = True)
@@ -79,7 +81,7 @@ def forward_checking(node: Node, salon: int, group: int) -> None:
         if group in neighbor.domain:
             neighbor.domain.remove(group)
 
-def constraint_varibale(node:Node)->list(()):
+def constraint_varibale(node:Node) -> list[tuple['Salon', 'Salon']]:
     constraint=list()
     for salon in node.salons:
         for neighbor in salon.neighbors:
@@ -87,15 +89,6 @@ def constraint_varibale(node:Node)->list(()):
             constraint.append((salon,neighbor))
     return constraint
 
-# def constraint_global(node : Node):
-#     constraint=list()
-#     for salon in node.salons:
-#         for salon_f in node.salons:
-#             if salon != salon_f:
-#                 constraint.append((salon,salon_f))
-#     return constraint
-
-        
 
 def AC3(node: Node , queue:list=None) -> bool:
     if queue == None:
@@ -108,13 +101,14 @@ def AC3(node: Node , queue:list=None) -> bool:
                 return False
                 
             for salon_k in salon_i.neighbors:
+                salon_k = node.salons[salon_k]
                 if (salon_k, salon_i) not in queue: #TODO debug test
                     queue.append((salon_k, salon_i))
                     
     return True
       
 
-def remove_inconsistent_values(cell_i : Salon, cell_j : Salon)->bool:#returns true if a value is removed
+def remove_inconsistent_values(cell_i : Salon, cell_j : Salon) -> bool: #returns true if a value is removed
     removed = False
 
     for value in cell_i.domain:
@@ -127,6 +121,7 @@ def remove_inconsistent_values(cell_i : Salon, cell_j : Salon)->bool:#returns tr
 
 def isSatisfy(node: Node, salon: int, group: int) -> bool:
     for neighbor in node.salons[salon].neighbors:
+        neighbor = node.salons[neighbor]
         if neighbor.domain == [group]:
             return False
 
@@ -205,8 +200,8 @@ def testGenerator() -> list['Salon']:
             
     for edge in edges:
         a, b = (int(edge[0]) - 1, int(edge[1]) -1)
-        salons[a].addNeighbor(salons[b])
-        salons[b].addNeighbor(salons[a])
+        salons[a].addNeighbor(b)
+        salons[b].addNeighbor(a)
     
     return salons
 
