@@ -93,6 +93,47 @@ def backtracking(root: Node) -> Node | None:
     return None
 
 
+def testGenerator() -> list['Salon']:
+    from random import randint as rant, choices
+    n = int(input('n = '))
+    m = int(input('m = '))
+    e = int(input('e = '))
+
+    salons : list['Salon'] = []
+    for i in range(n):
+        salons.append(Salon([], []))
+
+    L = [str(i) for i in range(1,n+1)]
+    for i in range(m):
+        chs = choices(L,k=rant(1,n))
+        for k in range(len(chs)):
+            j = k+1
+            while j < len(chs):
+                if chs[k] == chs[j]:
+                    chs.pop(j)
+                    j -= 1
+                j += 1
+        chs.sort()
+        for salon in chs:
+            salon = int(salon) - 1
+            salons[salon].addDomain(i)
+
+    # e = rant(m*2,m*(m-1)/2)
+
+    edges = set()
+    while len(edges) != e:
+        t = tuple(x for x in choices(L,k=2))
+        t_e = (t[1],t[0])
+        if t_e not in edges and t[0] != t[1]:
+            edges.add(t)
+            
+    for edge in edges:
+        a, b = (int(edge[0]) - 1, int(edge[1]) -1)
+        salons[a].addNeighbor(salons[b])
+        salons[b].addNeighbor(salons[a])
+    
+    return salons
+
 def getInput():
     n, m = (int(x) for x in input().split())
     salons : list['Salon'] = []
@@ -114,11 +155,17 @@ def getInput():
 
 
 def main() -> None:
-    salons = getInput()
+    # salons = getInput()
+    salons = testGenerator()
 
     problem = Node(salons)
-    result = backtracking(problem)
 
+    from datetime import datetime
+
+    start = datetime.now()
+    result = backtracking(problem)
+    end = datetime.now()
+    print(end-start)
     if result == None:
         print('No')
         return None
