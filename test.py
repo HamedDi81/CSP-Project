@@ -17,10 +17,12 @@ class Node:
 class Salon:
     neighbors: list[int]
     domain: list[int]
+    assigned: bool
 
-    def __init__(self, neighbors: list['Salon'], domain: list[int]) -> None:
+    def __init__(self, neighbors: list['Salon'], domain: list[int], assigned = False) -> None:
         self.neighbors = neighbors
         self.domain = domain
+        self.assigned = assigned
 
     def addDomain(self, group: int) -> None:
         self.domain.append(group)
@@ -29,7 +31,7 @@ class Salon:
         self.neighbors.append(salon)
 
     def copy(self) -> 'Salon':
-        return Salon(self.neighbors, self.domain.copy())
+        return Salon(self.neighbors, self.domain.copy(), self.assigned)
 
 
 def MRV(node: Node) -> int:
@@ -38,13 +40,13 @@ def MRV(node: Node) -> int:
     index = 0
 
     for i in range(len(node.salons)):
-        if len(node.salons[i].domain) > 1 :
+        if not node.salons[i].assigned:
             if len(node.salons[i].domain) < min_domain:
                 min_domain = len(node.salons[i].domain)
                 index = i
     
     for i in range(len(node.salons)):
-            if len(node.salons[i].domain) == min_domain:
+            if len(node.salons[i].domain) == min_domain and not node.salons[i].assigned:
                 if len(node.salons[i].neighbors) > max_neighbor:
                     max_neighbor = len(node.salons[i].neighbors)
                     index = i
@@ -56,18 +58,22 @@ def LCV(node: Node, salon: int) -> list[int]:
     domain_sort = node.salons[salon].domain.copy()
     score = 0
 
-    for d in domain_sort:
+    i = 0
+    while i < len(domain_sort):
+        d = domain_sort[i]
         for n in node.salons[salon].neighbors:
             neighbor = node.salons[n]
             if d in neighbor.domain:
                 if len(neighbor.domain) == 1:
                     domain_sort.remove(d)
                     score = -1
+                    i -= 1
                     break
                 else : score += 1
         if score != -1:
             domain_sort[domain_sort.index(d)] = (score, d)
         score = 0
+        i += 1
 
     domain_sort.sort(key = lambda x: x[0])
     for i in domain_sort:
@@ -77,7 +83,6 @@ def LCV(node: Node, salon: int) -> list[int]:
 
 
 def forward_checking(node: Node, salon: int, group: int) -> None:
-    node.salons[salon].domain = [group]
     for neighbor in node.salons[salon].neighbors:
         neighbor = node.salons[neighbor]
         if group in neighbor.domain:
@@ -132,7 +137,7 @@ def isSatisfy(node: Node, salon: int, group: int) -> bool:
 
 def isComplete(node: Node) -> bool:
     for salon in node.salons:
-        if len(salon.domain) != 1:
+        if not salon.assigned:
             return False
 
     return True
@@ -147,21 +152,30 @@ def isFailure(node: Node) -> bool:
 
 
 def backtracking(root: Node) -> Node | None:
-    stack = [root]
+    stack = [(root, None, None)]
 
     while stack:
-        state = stack.pop()
+        state, salon, group = stack.pop()
+
+        if isFailure(state):
+            continue
 
         if isComplete(state):
             return state
+
+        if salon != None:
+            forward_checking(state, salon, group)
+        else:
+            if not AC3(state):
+                return None
 
         salon = MRV(state)
         for group in LCV(state, salon)[-1::-1]:
             if isSatisfy(state, salon, group):
                 child = state.copy()
-                forward_checking(child, salon, group)
-                if not isFailure(child):
-                    stack.append(child)
+                child.salons[salon].domain = [group]
+                child.salons[salon].assigned = True
+                stack.append((child, salon, group))
         
 
     return None
