@@ -43,8 +43,10 @@ def LCV(node: Node, salon: int) -> list[int]:
 
 
 def forward_checking(node: Node, salon: int, group: int) -> None:
+    node.salons[salon].domain = [group]
     for neighbor in node.salons[salon].neighbors:
-        neighbor.domain = neighbor.domain.remove(group)
+        if group in neighbor.domain:
+            neighbor.domain = neighbor.domain.remove(group)
 
 # def constraint_varibale(node:Node)->list(()):
 #     constraint=list()
