@@ -52,8 +52,24 @@ def MRV(node: Node) -> int:
 
 
 def LCV(node: Node, salon: int) -> list[int]:
+    domain_sort = node.salons[salon].domain.copy()
+    score = 0
+    for n in node.salons[salon].neighbors:
+        if len(n.domain) == 1 and n.domain[0] in node.salons[salon].domain:
+            domain_sort.remove(n.domain[0])
 
-    return node.salons[salon].domain
+    for d in domain_sort:
+        for n in node.salons[salon].neighbors:
+            if d in n.domain:
+                score += 1
+        domain_sort[domain_sort.index(d)] = (score, d)
+        score = 0
+
+    domain_sort.sort(key = lambda x: x[0], reverse = True)
+    for i in domain_sort:
+        domain_sort[domain_sort.index(i)] = i[1]
+
+    return domain_sort
 
 
 def forward_checking(node: Node, salon: int, group: int) -> None:
