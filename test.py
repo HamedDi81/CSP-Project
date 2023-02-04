@@ -1,4 +1,4 @@
-
+import sys
 class Node:
     salons: list['Salon']
 
@@ -34,7 +34,7 @@ class Salon:
 
 def MRV(node: Node) -> int:
     max_neighbor = 0
-    min_domain = 100000
+    min_domain = sys.maxsize
     index = 0
 
     for i in range(len(node.salons)):
@@ -42,12 +42,12 @@ def MRV(node: Node) -> int:
             if len(node.salons[i].domain) < min_domain:
                 min_domain = len(node.salons[i].domain)
                 index = i
-            
-            elif len(node.salons[i].domain) == min_domain:
+    
+    for i in range(len(node.salons)):
+            if len(node.salons[i].domain) == min_domain:
                 if len(node.salons[i].neighbors) > max_neighbor:
                     max_neighbor = len(node.salons[i].neighbors)
                     index = i
-        
         
     return index
 
