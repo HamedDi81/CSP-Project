@@ -58,16 +58,18 @@ def LCV(node: Node, salon: int) -> list[int]:
 
     for d in domain_sort:
         for n in node.salons[salon].neighbors:
-            if d in node.salons[n].domain:
-                if len(node.salons[n].domain) == 1:
-                    domain_sort.remove(n.domain[0])
+            neighbor = node.salons[n]
+            if d in neighbor.domain:
+                if len(neighbor.domain) == 1:
+                    domain_sort.remove(d)
                     score = -1
+                    break
                 else : score += 1
         if score != -1:
             domain_sort[domain_sort.index(d)] = (score, d)
         score = 0
 
-    domain_sort.sort(key = lambda x: x[0], reverse = True)
+    domain_sort.sort(key = lambda x: x[0])
     for i in domain_sort:
         domain_sort[domain_sort.index(i)] = i[1]
 
@@ -158,7 +160,8 @@ def backtracking(root: Node) -> Node | None:
             if isSatisfy(state, salon, group):
                 child = state.copy()
                 forward_checking(child, salon, group)
-                stack.append(child)
+                if not isFailure(child):
+                    stack.append(child)
         
 
     return None
