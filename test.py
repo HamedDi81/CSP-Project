@@ -32,9 +32,21 @@ class Salon:
 
 
 def MRV(node: Node) -> int:
+    max_neighbor = 0
+    min_domain = 100000
+    index = 0
+
     for i in range(len(node.salons)):
-        if len(node.salons[i].domain) > 1:
-            return i
+        if len(node.salons[i].domain) < min_domain:
+            min_domain = len(node.salons[i].domain)
+            index = i
+
+        elif len(node.salons[i].domain) < min_domain:
+            if len(node.salons[i].neighbors) > max_neighbor:
+                max_neighbor = len(node.salons[i].neighbors)
+                index = i
+
+    return index
 
 
 def LCV(node: Node, salon: int) -> list[int]:
