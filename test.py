@@ -33,13 +33,43 @@ class Salon:
 
 
 def MRV(node: Node) -> int:
+    max_neighbor = 0
+    min_domain = 100000
+    index = 0
+
     for i in range(len(node.salons)):
-        if len(node.salons[i].domain) > 1:
-            return i
+        if len(node.salons[i].domain) > 1 :
+            if len(node.salons[i].domain) < min_domain:
+                min_domain = len(node.salons[i].domain)
+                index = i
+            
+            elif len(node.salons[i].domain) == min_domain:
+                if len(node.salons[i].neighbors) > max_neighbor:
+                    max_neighbor = len(node.salons[i].neighbors)
+                    index = i
+        
+        
+    return index
 
 
 def LCV(node: Node, salon: int) -> list[int]:
-    return node.salons[salon].domain
+    domain_sort = node.salons[salon].domain.copy()
+    score = 0
+
+    for d in domain_sort:
+        for n in range(node.salons[salon].neighbors):
+            if d in node.salons[n].domain:
+                if len(node.salons[n].domain) == 1:
+                    domain_sort.remove(n.domain[0])
+                else : score += 1
+        domain_sort[domain_sort.index(d)] = (score, d)
+        score = 0
+
+    domain_sort.sort(key = lambda x: x[0], reverse = True)
+    for i in domain_sort:
+        domain_sort[domain_sort.index(i)] = i[1]
+
+    return domain_sort
 
 
 def forward_checking(node: Node, salon: int, group: int) -> None:
