@@ -15,7 +15,7 @@ class Node:
         return newNode
 
 class Salon:
-    neighbors: list['Salon']
+    neighbors: list[int]
     domain: list[int]
 
     def __init__(self, neighbors: list['Salon'], domain: list[int]) -> None:
@@ -45,30 +45,31 @@ def LCV(node: Node, salon: int) -> list[int]:
 def forward_checking(node: Node, salon: int, group: int) -> None:
     node.salons[salon].domain = [group]
     for neighbor in node.salons[salon].neighbors:
+        neighbor = node.salons[neighbor]
         if group in neighbor.domain:
-            neighbor.domain = neighbor.domain.remove(group)
+            neighbor.domain.remove(group)
 
-# def constraint_varibale(node:Node)->list(()):
-#     constraint=list()
-#     for salon in node.salons:
-#         for neighbor in salon.neighbors:
-#             constraint.append((salon,neighbor))
-#     return constraint
-
-def constraint_global(node : Node):
+def constraint_varibale(node:Node)->list(()):
     constraint=list()
     for salon in node.salons:
-        for salon_f in node.salons:
-            if salon != salon_f:
-                constraint.append((salon,salon_f))
+        for neighbor in salon.neighbors:
+            neighbor = node.salons[neighbor]
+            constraint.append((salon,neighbor))
     return constraint
+
+# def constraint_global(node : Node):
+#     constraint=list()
+#     for salon in node.salons:
+#         for salon_f in node.salons:
+#             if salon != salon_f:
+#                 constraint.append((salon,salon_f))
+#     return constraint
 
         
 
-
 def AC3(node: Node , queue:list=None) -> bool:
     if queue == None:
-        queue = constraint_global(node)
+        queue = constraint_varibale(node)
 
     while queue:
         (salon_i,salon_j)= queue.pop(0)
@@ -77,19 +78,19 @@ def AC3(node: Node , queue:list=None) -> bool:
                 return False
                 
             for salon_k in salon_i.neighbors:
-                if salon_k != salon_i:
+                if (salon_k, salon_i) not in queue: #TODO debug test
                     queue.append((salon_k, salon_i))
                     
     return True
-        
-
+      
 
 def remove_inconsistent_values(cell_i : Salon, cell_j : Salon)->bool:#returns true if a value is removed
     removed = False
 
     for value in cell_i.domain:
         if not any([value != poss for poss in cell_j.domain]):
-            cell_i.domain = cell_i.domain.remove(value)
+        # if cell_j.domain == [value]:
+            cell_i.domain.remove(value)
             removed = True
         
     return removed
@@ -127,7 +128,7 @@ def backtracking(root: Node) -> Node | None:
         if isComplete(state):
             return state
 
-        salon =  MRV(state)
+        salon = MRV(state)
         for group in LCV(state, salon)[-1::-1]:
             if isSatisfy(state, salon, group):
                 child = state.copy()
@@ -193,8 +194,8 @@ def getInput():
     e = int(input())
     for i in range(e):
         a, b = (int(x) - 1 for x in input().split())
-        salons[a].addNeighbor(salons[b])
-        salons[b].addNeighbor(salons[a])
+        salons[a].addNeighbor(b)
+        salons[b].addNeighbor(a)
     
     return salons
 
