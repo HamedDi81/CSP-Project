@@ -119,8 +119,8 @@ def remove_inconsistent_values(cell_i : Salon, cell_j : Salon) -> bool: #returns
     removed = False
 
     for value in cell_i.domain:
-        if not any([value != poss for poss in cell_j.domain]):
-        # if cell_j.domain == [value]:
+        # if not any([value != poss for poss in cell_j.domain]):
+        if cell_j.domain == [value]:
             cell_i.domain.remove(value)
             removed = True
         
@@ -151,7 +151,7 @@ def isFailure(node: Node) -> bool:
     return False
 
 
-def backtracking(root: Node) -> Node | None:
+def backtracking(root: Node, mode: int= 1) -> Node | None:
     stack = [(root, None, None)]
 
     while stack:
@@ -163,11 +163,18 @@ def backtracking(root: Node) -> Node | None:
         if isComplete(state):
             return state
 
-        if salon != None:
-            forward_checking(state, salon, group)
-        else:
+        if mode == 0:
+            if salon != None:
+                forward_checking(state, salon, group)
+        elif mode == 1:
+            if salon != None:
+                forward_checking(state, salon, group)
+            else:
+                if not AC3(state):
+                    continue
+        elif mode == 2:
             if not AC3(state):
-                return None
+                continue
 
         salon = MRV(state)
         for group in LCV(state, salon)[-1::-1]:
@@ -193,7 +200,7 @@ def testGenerator() -> list['Salon']:
 
     L = [str(i) for i in range(1,n+1)]
     for i in range(m):
-        chs = choices(L,k=rant(1,n))
+        chs = choices(L,k=1 if rant(1,4) == 1 else rant(2,10))
         for k in range(len(chs)):
             j = k+1
             while j < len(chs):
@@ -201,7 +208,6 @@ def testGenerator() -> list['Salon']:
                     chs.pop(j)
                     j -= 1
                 j += 1
-        chs.sort()
         for salon in chs:
             salon = int(salon) - 1
             salons[salon].addDomain(i)
@@ -250,16 +256,38 @@ def main() -> None:
 
     from datetime import datetime
 
+    _problem = problem.copy()
     start = datetime.now()
-    result = backtracking(problem)
+    result = backtracking(_problem, 1)
     end = datetime.now()
-    print(end-start)
+    print('\n\ntime =', end-start)
     if result == None:
         print('No')
-        return None
+    else:
+        for salon in result.salons:
+            print(salon.domain[0] + 1, end = ' ')
 
-    for salon in result.salons:
-        print(salon.domain[0] + 1, end = ' ')
+    _problem = problem.copy()
+    start = datetime.now()
+    result = backtracking(_problem, 0)
+    end = datetime.now()
+    print('\n\ntime =', end-start)
+    if result == None:
+        print('No')
+    else:
+        for salon in result.salons:
+            print(salon.domain[0] + 1, end = ' ')
+
+    _problem = problem.copy()
+    start = datetime.now()
+    result = backtracking(_problem, 2)
+    end = datetime.now()
+    print('\n\ntime =', end-start)
+    if result == None:
+        print('No')
+    else:
+        for salon in result.salons:
+            print(salon.domain[0] + 1, end = ' ')
 
 if __name__ == '__main__':
     main()
