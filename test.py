@@ -54,14 +54,13 @@ def MRV(node: Node) -> int:
 def LCV(node: Node, salon: int) -> list[int]:
     domain_sort = node.salons[salon].domain.copy()
     score = 0
-    for n in node.salons[salon].neighbors:
-        if len(n.domain) == 1 and n.domain[0] in node.salons[salon].domain:
-            domain_sort.remove(n.domain[0])
-
+    
     for d in domain_sort:
         for n in node.salons[salon].neighbors:
             if d in n.domain:
-                score += 1
+                if len(n.domain) == 1:
+                    domain_sort.remove(n.domain[0])
+                else : score += 1
         domain_sort[domain_sort.index(d)] = (score, d)
         score = 0
 
