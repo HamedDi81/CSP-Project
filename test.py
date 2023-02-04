@@ -14,7 +14,7 @@ class Node:
         return newNode
 
 class Salon:
-    neighbors: list['Salon']
+    neighbors: list[int]
     domain: list[int]
 
     def __init__(self, neighbors: list['Salon'], domain: list[int]) -> None:
@@ -54,11 +54,11 @@ def MRV(node: Node) -> int:
 def LCV(node: Node, salon: int) -> list[int]:
     domain_sort = node.salons[salon].domain.copy()
     score = 0
-    
+
     for d in domain_sort:
-        for n in node.salons[salon].neighbors:
-            if d in n.domain:
-                if len(n.domain) == 1:
+        for n in range(node.salons[salon].neighbors):
+            if d in node.salons[n].domain:
+                if len(node.salons[n].domain) == 1:
                     domain_sort.remove(n.domain[0])
                 else : score += 1
         domain_sort[domain_sort.index(d)] = (score, d)
